@@ -303,11 +303,8 @@ void loop()
 
 How This Works :
 - Producer task updates the shared SBUS data buffer.
-
 - Consumers (as many as you like) safely read the latest SBUS data using the mutex.
-
 - No race conditions: Mutex ensures only one task accesses the shared buffer at a time.
-
 - You can add more consumers (tasks) for other uses (logging, control, telemetry, etc).
 
 ## Example  2 : Observer pattern for SBUS data distribution
@@ -315,11 +312,8 @@ How This Works :
 This approach:
 
 - Eliminates direct global data sharing (no shared buffer with mutex).
-
 - Implements a simple observer pattern: Each consumer registers a callback; the producer notifies all observers when new data arrives.
-
 - Uses only static allocation (no dynamic allocation at runtime).
-
 - Follows MISRA/NASA/JPL safety principles: No C-style casts, all variables initialized, all return values checked, no magic numbers, no unused parameters, clear encapsulation, and thread safety.
 
 
@@ -330,7 +324,6 @@ This approach:
  // Board  : DOIT ESP32 DEVKIT V1
  // Purpose: SBUS to PPM signal conversion, safe Observer pattern for data distribution
  // Pattern: Observer (publish/subscribe) with static allocation and MISRA/NASA/JPL safety
-
 
 #include <Arduino.h>
 #include "sbus.h"

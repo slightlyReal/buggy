@@ -11,7 +11,7 @@
 
 // To Compile&Upload : pio run -t upload -e buggy
 
-// References 
+// References
 /*
 1. https://www.youtube.com/watch?v=Dia-r1UuCZk&ab_channel=MATLAB
 2. Making a Simple DC Motor :  https://www.youtube.com/watch?v=CBI0Mz9xeqg&ab_channel=QuantumBoffin
@@ -21,78 +21,89 @@
 #include <Arduino.h>
 #include "sbus.h"
 #include "constants/math_constants.h"
+#include "buggy_config/buggy_config.h"
 
 // Logger
 #include "esp_log.h"
 static const char *LOGGER_TAG = "main_buggy";
 
 // SBUS RX on GPIO 16, TX unused, inverted signal
-bfs::SbusRx sbus_rx(&Serial2, 16, -1, true);
-
-// Constants
-constexpr int16_t SBUS_MIN = 240;
-constexpr int16_t SBUS_MID = 1025;
-constexpr int16_t SBUS_DEADBAND = 10;
-constexpr int16_t SBUS_MAX = 1807;
-constexpr int16_t PPM_MIN_US = 1000;
-constexpr int16_t PPM_MAX_US = 2000;
-constexpr std::size_t NUM_CH = 10U;
-constexpr std::size_t SBUS_QUEUE_LENGTH = 5U;
-constexpr uint32_t SBUS_TASK_STACK_SIZE = 4096U;
-constexpr uint32_t TASK_STACK_SIZE = 4096U;
-
-constexpr int16_t THROTTLE_CHANNEL = 2;
-constexpr int16_t DIRECTION_CHANNEL = 1;
+bfs::SbusRx sbus_rx(&Serial2, sbus_rx_hardwareSerial2_pin, -1, true);
 
 // Global variables
 int16_t radio_ch[NUM_CH] = {0};
 bfs::SbusData sbus_data; // Structure from sbus.h
 QueueHandle_t sbusQueue = nullptr;
 
-// // Motor control pins
-const int motor1Pin1 = 17;
-const int motor1Pin2 = 18;
-
-// PWM properties
-const int pwmChannel1 = 0;
-const int pwmChannel2 = 1;
-const int PWM_FREQ = 100;
-const int PWM_RESOLUTION = 8; // 8 Bit :  0-255
-const int DUTY_MAX = 255;
-
 #define BAUD_RATE 2000000
 
-void motor_function(int16_t in_duty)
+// Mavlink
+#include <WiFi.h>
+#include <WiFiUdp.h>
+// Define MAVLink Communication Protocol
+#ifdef F
+#undef F
+#endif
+#include <common/mavlink.h>
+#include "conf.h"
+#include "wifi_pass_config.h"
+#include "buggy_mavlink.h"
+
+void motor_function(int16_t in_duty_main, int16_t in_duty_direction)
 {
-  int8_t duty = abs(in_duty);
-  if (in_duty > 0)
+  int16_t duty_main = abs(in_duty_main);
+  int16_t duty_direction = abs(in_duty_direction);
+  if (in_duty_main > 0)
   {
     // Forward
-    ledcWrite(pwmChannel1, 0);
-    ledcWrite(pwmChannel2, duty);
+    ledcWrite(motor1_pwmChannel1, 0);
+    ledcWrite(motor1_pwmChannel2, duty_main);
 
-    ESP_LOGI(LOGGER_TAG, "Forward : duty : %d\n", duty);
+    ESP_LOGI(LOGGER_TAG, "Forward : duty : %d\n", duty_main);
   }
-  else if (in_duty < 0)
+  else if (in_duty_main < 0)
   {
     // Backward
-    ledcWrite(pwmChannel1, duty);
-    ledcWrite(pwmChannel2, 0);
+    ledcWrite(motor1_pwmChannel1, duty_main);
+    ledcWrite(motor1_pwmChannel2, 0);
 
-    ESP_LOGI(LOGGER_TAG, "Backward : duty : %d\n", duty);
+    ESP_LOGI(LOGGER_TAG, "Backward : duty : %d\n", duty_main);
   }
-
   else
   {
     // Stop
-    ledcWrite(pwmChannel1, 0);
-    ledcWrite(pwmChannel2, 0);
+    ledcWrite(motor1_pwmChannel1, 0);
+    ledcWrite(motor1_pwmChannel2, 0);
+    ESP_LOGI(LOGGER_TAG, "Stopped.\n");
+  }
+
+  if (in_duty_direction > 0)
+  {
+    // Forward
+    ledcWrite(motor2_pwmChannel1, 0);
+    ledcWrite(motor2_pwmChannel2, duty_direction);
+
+    ESP_LOGI(LOGGER_TAG, "Right : duty : %d\n", duty_direction);
+  }
+  else if (in_duty_direction < 0)
+  {
+    // Backward
+    ledcWrite(motor2_pwmChannel1, duty_direction);
+    ledcWrite(motor2_pwmChannel2, 0);
+
+    ESP_LOGI(LOGGER_TAG, "Left : duty : %d\n", duty_direction);
+  }
+  else
+  {
+    // Stop
+    ledcWrite(motor2_pwmChannel1, 1);
+    ledcWrite(motor2_pwmChannel2, 1);
     ESP_LOGI(LOGGER_TAG, "Stopped.\n");
   }
 }
 
 // Convert : SBUS values to PWM Duty Cycle Value
-int16_t convert_SBUS_to_THROTTLE(int16_t in_throttle)
+int16_t convert_SBUS_to_DUTY(int16_t in_throttle)
 {
   int16_t out_duty = 0;
   //  Apply  DeadBand  Logic
@@ -162,8 +173,38 @@ void sbusTask(void *const pvParameters)
 
       // ESP_LOGI(LOGGER_TAG, "Function triggered %lld microseconds (%.2f Hz) ago.", total_time_us, update_rate_hz);
     }
-
     vTaskDelay(pdMS_TO_TICKS(SBUS_TASK_DELAY_MS)); // 50 Hz update rate
+  }
+}
+
+// Producer task: reads SBUS data and sends it to the queue
+void mavlink_telemetryTask(void *const pvParameters)
+{
+  (void)pvParameters; // Unused parameter
+
+  unsigned long currentMillis = millis();
+  float sine_value = 0.0f;
+  float cosine_value = 0.0f;
+  for (;;)
+  {
+    if (true)
+    {
+      send_heartbeat();
+      send_systemstatus();
+      send_radiostatus();
+      send_position();
+      send_mavlink_msg_rc_channels(10);
+
+      currentMillis = millis();
+      sine_value = sin(currentMillis);
+      cosine_value = cos(currentMillis);
+
+      send_mavlink_attitude(currentMillis, (cosine_value * 10.0f * M_PI / 180.0f), (cosine_value * 20.0f * M_PI / 180.0f), (cosine_value * 30.0f * M_PI / 180.0f));
+      send_mavlink_SCALED_IMU(currentMillis, (int16_t)(cosine_value * 10.0f), (int16_t)(cosine_value * 10.0f), (int16_t)(cosine_value * 10.0f));
+      send_mavlink_local_position_ned(currentMillis, 1, 2, 3);
+    }
+
+    vTaskDelay(pdMS_TO_TICKS(MAVLINK_TASK_DELAY_MS)); // update rate
   }
 }
 
@@ -174,8 +215,7 @@ void consumerTask(void *pvParameters)
 
   bfs::SbusData receivedData = {};
 
-  int16_t in_throttle = 0;
-  int16_t duty = 0;
+  int16_t in_throttle, duty, duty_direction = 0;
 
   for (;;)
   {
@@ -191,8 +231,9 @@ void consumerTask(void *pvParameters)
       }
       Serial.printf("Lost Frame: %d\tFailsafe: %d\n", receivedData.lost_frame, receivedData.failsafe);
 
-      duty = convert_SBUS_to_THROTTLE(receivedData.ch[1]);
-      motor_function(duty);
+      duty = convert_SBUS_to_DUTY(receivedData.ch[RC_CHANNEL_THROTTLE]);
+      duty_direction = convert_SBUS_to_DUTY(receivedData.ch[RC_CHANNEL_DIRECTION]);
+      motor_function(duty, duty_direction);
       ESP_LOGI(LOGGER_TAG, "duty : %d\n", duty);
 
       if (false)
@@ -219,23 +260,23 @@ void motorTask(void *parameter)
   while (1)
   {
     // Forward
-    ledcWrite(pwmChannel1, duty);
-    ledcWrite(pwmChannel2, 0);
+    ledcWrite(motor1_pwmChannel1, duty);
+    ledcWrite(motor1_pwmChannel2, 0);
     vTaskDelay(2000 / portTICK_PERIOD_MS);
 
     // Stop
-    ledcWrite(pwmChannel1, 0);
-    ledcWrite(pwmChannel2, 0);
+    ledcWrite(motor1_pwmChannel1, 0);
+    ledcWrite(motor1_pwmChannel2, 0);
     vTaskDelay(1000 / portTICK_PERIOD_MS);
 
     // Backward
-    ledcWrite(pwmChannel1, 0);
-    ledcWrite(pwmChannel2, duty);
+    ledcWrite(motor1_pwmChannel1, 0);
+    ledcWrite(motor1_pwmChannel2, duty);
     vTaskDelay(2000 / portTICK_PERIOD_MS);
 
     // Stop
-    ledcWrite(pwmChannel1, 0);
-    ledcWrite(pwmChannel2, 0);
+    ledcWrite(motor1_pwmChannel1, 0);
+    ledcWrite(motor1_pwmChannel2, 0);
     vTaskDelay(1000 / portTICK_PERIOD_MS);
   }
 }
@@ -243,14 +284,19 @@ void motorTask(void *parameter)
 void setup()
 {
   Serial.begin(BAUD_RATE);
+  init_wifi();
 
   // Configure PWM channels
-  ledcSetup(pwmChannel1, PWM_FREQ, PWM_RESOLUTION);
-  ledcSetup(pwmChannel2, PWM_FREQ, PWM_RESOLUTION);
+  ledcSetup(motor1_pwmChannel1, PWM_FREQ, PWM_RESOLUTION);
+  ledcSetup(motor1_pwmChannel2, PWM_FREQ, PWM_RESOLUTION);
+  ledcSetup(motor2_pwmChannel1, PWM_FREQ, PWM_RESOLUTION);
+  ledcSetup(motor2_pwmChannel2, PWM_FREQ, PWM_RESOLUTION);
 
   // Attach channels to GPIO pins
-  ledcAttachPin(motor1Pin1, pwmChannel1);
-  ledcAttachPin(motor1Pin2, pwmChannel2);
+  ledcAttachPin(motor1Pin1, motor1_pwmChannel1);
+  ledcAttachPin(motor1Pin2, motor1_pwmChannel2);
+  ledcAttachPin(motor2Pin1, motor2_pwmChannel1);
+  ledcAttachPin(motor2Pin2, motor2_pwmChannel2);
 
   vTaskDelay(1000 / portTICK_PERIOD_MS); // Non Blocking Delay
   while (!Serial)
@@ -318,6 +364,22 @@ void setup()
       1             // Core (0 or 1)
   );
   */
+
+  taskResult = xTaskCreatePinnedToCore(
+      mavlink_telemetryTask,
+      "mavlink_telemetryTask",
+      TASK_STACK_SIZE,
+      nullptr,
+      1,
+      nullptr,
+      1);
+  if (taskResult != pdPASS)
+  {
+    ESP_LOGE(LOGGER_TAG, "Failed to create mavlink_telemetryTask!");
+    while (true)
+    { /* Halt on failure */
+    }
+  }
 }
 
 void loop()
