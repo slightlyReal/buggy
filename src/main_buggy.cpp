@@ -71,7 +71,14 @@ void motor_function(int16_t in_duty_main, int16_t in_duty_direction)
   }
   else
   {
+    /*
     // Stop
+    ledcWrite(motor1_pwmChannel1, 0);
+    ledcWrite(motor1_pwmChannel2, 0);
+    ESP_LOGI(LOGGER_TAG, "Stopped.\n");
+    */
+
+    // Break
     ledcWrite(motor1_pwmChannel1, 0);
     ledcWrite(motor1_pwmChannel2, 0);
     ESP_LOGI(LOGGER_TAG, "Stopped.\n");
@@ -95,9 +102,9 @@ void motor_function(int16_t in_duty_main, int16_t in_duty_direction)
   }
   else
   {
-    // Stop
-    ledcWrite(motor2_pwmChannel1, 1);
-    ledcWrite(motor2_pwmChannel2, 1);
+    // Break
+    ledcWrite(motor2_pwmChannel1, 0);
+    ledcWrite(motor2_pwmChannel2, 0);
     ESP_LOGI(LOGGER_TAG, "Stopped.\n");
   }
 }
@@ -193,7 +200,7 @@ void mavlink_telemetryTask(void *const pvParameters)
       send_systemstatus();
       send_radiostatus();
       send_position();
-      send_mavlink_msg_rc_channels(10);
+      //send_mavlink_msg_rc_channels(10);
 
       currentMillis = millis();
       sine_value = sin(currentMillis);
@@ -233,6 +240,9 @@ void consumerTask(void *pvParameters)
 
       duty = convert_SBUS_to_DUTY(receivedData.ch[RC_CHANNEL_THROTTLE]);
       duty_direction = convert_SBUS_to_DUTY(receivedData.ch[RC_CHANNEL_DIRECTION]);
+
+      send_mavlink_msg_rc_channels(receivedData.ch[RC_CHANNEL_THROTTLE],receivedData.ch[RC_CHANNEL_DIRECTION]);
+
       motor_function(duty, duty_direction);
       ESP_LOGI(LOGGER_TAG, "duty : %d\n", duty);
 

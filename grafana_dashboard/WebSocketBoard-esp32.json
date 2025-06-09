@@ -18,13 +18,13 @@
   "editable": true,
   "fiscalYearStartMonth": 0,
   "graphTooltip": 0,
-  "id": 2,
+  "id": 3,
   "links": [],
   "panels": [
     {
       "datasource": {
         "type": "golioth-websocket-datasource",
-        "uid": "aema1wmabavb4c"
+        "uid": "dem9s3qxr44qob"
       },
       "fieldConfig": {
         "defaults": {
@@ -78,7 +78,7 @@
         {
           "datasource": {
             "type": "golioth-websocket-datasource",
-            "uid": "aema1wmabavb4c"
+            "uid": "dem9s3qxr44qob"
           },
           "fields": [
             {
@@ -98,7 +98,7 @@
     {
       "datasource": {
         "type": "golioth-websocket-datasource",
-        "uid": "aema1wmabavb4c"
+        "uid": "dem9s3qxr44qob"
       },
       "fieldConfig": {
         "defaults": {
@@ -139,8 +139,8 @@
             }
           },
           "mappings": [],
-          "max": 5,
-          "min": -5,
+          "max": 30,
+          "min": -30,
           "thresholds": {
             "mode": "absolute",
             "steps": [
@@ -153,7 +153,7 @@
               }
             ]
           },
-          "unit": "accMS2"
+          "unit": "accG"
         },
         "overrides": []
       },
@@ -182,11 +182,11 @@
         {
           "datasource": {
             "type": "golioth-websocket-datasource",
-            "uid": "aema1wmabavb4c"
+            "uid": "dem9s3qxr44qob"
           },
           "fields": [
             {
-              "jsonPath": "$.timestamp",
+              "jsonPath": "$.SCALED_IMU.time_boot_ms",
               "language": "jsonpath",
               "name": "",
               "type": "time"
@@ -199,11 +199,11 @@
         {
           "datasource": {
             "type": "golioth-websocket-datasource",
-            "uid": "aema1wmabavb4c"
+            "uid": "dem9s3qxr44qob"
           },
           "fields": [
             {
-              "jsonPath": "$.imu.acc.x",
+              "jsonPath": "$.SCALED_IMU.xacc",
               "language": "jsonpath",
               "name": "",
               "type": "number"
@@ -217,11 +217,11 @@
         {
           "datasource": {
             "type": "golioth-websocket-datasource",
-            "uid": "aema1wmabavb4c"
+            "uid": "dem9s3qxr44qob"
           },
           "fields": [
             {
-              "jsonPath": "$.imu.acc.y",
+              "jsonPath": "$.SCALED_IMU.yacc",
               "language": "jsonpath",
               "name": ""
             }
@@ -234,11 +234,11 @@
         {
           "datasource": {
             "type": "golioth-websocket-datasource",
-            "uid": "aema1wmabavb4c"
+            "uid": "dem9s3qxr44qob"
           },
           "fields": [
             {
-              "jsonPath": "$.imu.acc.z",
+              "jsonPath": "$.SCALED_IMU.zacc",
               "language": "jsonpath",
               "name": ""
             }
@@ -261,7 +261,7 @@
     {
       "datasource": {
         "type": "golioth-websocket-datasource",
-        "uid": "aema1wmabavb4c"
+        "uid": "dem9s3qxr44qob"
       },
       "fieldConfig": {
         "defaults": {
@@ -309,11 +309,11 @@
         {
           "datasource": {
             "type": "golioth-websocket-datasource",
-            "uid": "aema1wmabavb4c"
+            "uid": "dem9s3qxr44qob"
           },
           "fields": [
             {
-              "jsonPath": "$.time",
+              "jsonPath": "$.SCALED_IMU.time_boot_ms",
               "language": "jsonpath",
               "name": "",
               "type": "time"
@@ -326,11 +326,11 @@
         {
           "datasource": {
             "type": "golioth-websocket-datasource",
-            "uid": "aema1wmabavb4c"
+            "uid": "dem9s3qxr44qob"
           },
           "fields": [
             {
-              "jsonPath": "$.timestamp",
+              "jsonPath": "$.SCALED_IMU.time_boot_ms",
               "language": "jsonpath",
               "name": "",
               "type": "number"
@@ -354,7 +354,7 @@
     {
       "datasource": {
         "type": "golioth-websocket-datasource",
-        "uid": "aema1wmabavb4c"
+        "uid": "dem9s3qxr44qob"
       },
       "fieldConfig": {
         "defaults": {
@@ -399,7 +399,7 @@
         "orientation": "auto",
         "reduceOptions": {
           "calcs": [
-            "lastNotNull"
+            "firstNotNull"
           ],
           "fields": "",
           "values": false
@@ -413,13 +413,14 @@
         {
           "datasource": {
             "type": "golioth-websocket-datasource",
-            "uid": "aema1wmabavb4c"
+            "uid": "dem9s3qxr44qob"
           },
           "fields": [
             {
-              "jsonPath": "$.imu.temperature",
+              "jsonPath": "$.SCALED_IMU.temperature",
               "language": "jsonpath",
-              "name": ""
+              "name": "",
+              "type": "number"
             }
           ],
           "path": "",
@@ -427,7 +428,7 @@
           "withStreaming": true
         }
       ],
-      "title": "IMU  Temperature",
+      "title": "CPUTemperature",
       "type": "gauge"
     },
     {
@@ -582,7 +583,7 @@
           },
           "fields": [
             {
-              "jsonPath": "$.voltage",
+              "jsonPath": "$",
               "language": "jsonpath",
               "name": "",
               "type": "number"
@@ -599,7 +600,7 @@
     {
       "datasource": {
         "type": "golioth-websocket-datasource",
-        "uid": "aema1wmabavb4c"
+        "uid": "dem9s3qxr44qob"
       },
       "fieldConfig": {
         "defaults": {
@@ -658,13 +659,14 @@
         {
           "datasource": {
             "type": "golioth-websocket-datasource",
-            "uid": "aema1wmabavb4c"
+            "uid": "dem9s3qxr44qob"
           },
           "fields": [
             {
-              "jsonPath": "$.imu.temperature",
+              "jsonPath": "$.SCALED_IMU.temperature",
               "language": "jsonpath",
-              "name": ""
+              "name": "",
+              "type": "number"
             }
           ],
           "path": "",
@@ -678,7 +680,7 @@
     {
       "datasource": {
         "type": "golioth-websocket-datasource",
-        "uid": "aema1wmabavb4c"
+        "uid": "dem9s3qxr44qob"
       },
       "fieldConfig": {
         "defaults": {
@@ -720,8 +722,6 @@
             }
           },
           "mappings": [],
-          "max": 1,
-          "min": -1,
           "thresholds": {
             "mode": "absolute",
             "steps": [
@@ -763,11 +763,11 @@
         {
           "datasource": {
             "type": "golioth-websocket-datasource",
-            "uid": "aema1wmabavb4c"
+            "uid": "dem9s3qxr44qob"
           },
           "fields": [
             {
-              "jsonPath": "$.time",
+              "jsonPath": "$.SCALED_IMU.time_boot_ms",
               "language": "jsonpath",
               "name": "",
               "type": "time"
@@ -780,11 +780,11 @@
         {
           "datasource": {
             "type": "golioth-websocket-datasource",
-            "uid": "aema1wmabavb4c"
+            "uid": "dem9s3qxr44qob"
           },
           "fields": [
             {
-              "jsonPath": "$.imu.gyro.x",
+              "jsonPath": "$.SCALED_IMU.xgyro",
               "language": "jsonpath",
               "name": "",
               "type": "number"
@@ -798,13 +798,14 @@
         {
           "datasource": {
             "type": "golioth-websocket-datasource",
-            "uid": "aema1wmabavb4c"
+            "uid": "dem9s3qxr44qob"
           },
           "fields": [
             {
-              "jsonPath": "$.imu.gyro.y",
+              "jsonPath": "$.SCALED_IMU.ygyro",
               "language": "jsonpath",
-              "name": ""
+              "name": "",
+              "type": "number"
             }
           ],
           "hide": false,
@@ -815,13 +816,14 @@
         {
           "datasource": {
             "type": "golioth-websocket-datasource",
-            "uid": "aema1wmabavb4c"
+            "uid": "dem9s3qxr44qob"
           },
           "fields": [
             {
-              "jsonPath": "$.imu.gyro.z",
+              "jsonPath": "$.SCALED_IMU.zgyro",
               "language": "jsonpath",
-              "name": ""
+              "name": "",
+              "type": "number"
             }
           ],
           "hide": false,
@@ -838,6 +840,166 @@
         }
       ],
       "type": "timeseries"
+    },
+    {
+      "datasource": {
+        "type": "golioth-websocket-datasource",
+        "uid": "dem9s3qxr44qob"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "continuous-GrYlRd"
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green"
+              },
+              {
+                "color": "red",
+                "value": 1800
+              }
+            ]
+          }
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 5,
+        "w": 3,
+        "x": 12,
+        "y": 15
+      },
+      "id": 14,
+      "options": {
+        "displayMode": "lcd",
+        "legend": {
+          "calcs": [],
+          "displayMode": "list",
+          "placement": "bottom",
+          "showLegend": false
+        },
+        "maxVizHeight": 300,
+        "minVizHeight": 16,
+        "minVizWidth": 8,
+        "namePlacement": "auto",
+        "orientation": "auto",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "showUnfilled": true,
+        "sizing": "auto",
+        "valueMode": "color"
+      },
+      "pluginVersion": "12.0.0",
+      "targets": [
+        {
+          "datasource": {
+            "type": "golioth-websocket-datasource",
+            "uid": "dem9s3qxr44qob"
+          },
+          "fields": [
+            {
+              "jsonPath": "$.RC_CHANNELS.chan1_raw",
+              "language": "jsonpath",
+              "name": "",
+              "type": "number"
+            }
+          ],
+          "path": "",
+          "refId": "A",
+          "withStreaming": true
+        }
+      ],
+      "title": "CH1",
+      "type": "bargauge"
+    },
+    {
+      "datasource": {
+        "type": "golioth-websocket-datasource",
+        "uid": "dem9s3qxr44qob"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "continuous-GrYlRd"
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green"
+              },
+              {
+                "color": "red",
+                "value": 1800
+              }
+            ]
+          }
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 5,
+        "w": 3,
+        "x": 15,
+        "y": 15
+      },
+      "id": 15,
+      "options": {
+        "displayMode": "lcd",
+        "legend": {
+          "calcs": [],
+          "displayMode": "list",
+          "placement": "bottom",
+          "showLegend": false
+        },
+        "maxVizHeight": 300,
+        "minVizHeight": 16,
+        "minVizWidth": 8,
+        "namePlacement": "auto",
+        "orientation": "vertical",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "showUnfilled": true,
+        "sizing": "auto",
+        "valueMode": "color"
+      },
+      "pluginVersion": "12.0.0",
+      "targets": [
+        {
+          "datasource": {
+            "type": "golioth-websocket-datasource",
+            "uid": "dem9s3qxr44qob"
+          },
+          "fields": [
+            {
+              "jsonPath": "$.RC_CHANNELS.chan2_raw",
+              "language": "jsonpath",
+              "name": "",
+              "type": "number"
+            }
+          ],
+          "path": "",
+          "refId": "A",
+          "withStreaming": true
+        }
+      ],
+      "title": "CH2",
+      "type": "bargauge"
     },
     {
       "datasource": {
@@ -876,7 +1038,7 @@
         "h": 8,
         "w": 12,
         "x": 12,
-        "y": 15
+        "y": 20
       },
       "id": 8,
       "options": {
@@ -1268,7 +1430,7 @@
         "h": 8,
         "w": 12,
         "x": 12,
-        "y": 23
+        "y": 28
       },
       "id": 9,
       "options": {
@@ -1430,12 +1592,12 @@
     "list": []
   },
   "time": {
-    "from": "now-5m",
+    "from": "now-1m",
     "to": "now"
   },
   "timepicker": {},
   "timezone": "browser",
-  "title": "WebSocketBoard-esp32",
-  "uid": "c646d137-f6bf-41c0-b184-fca3768d2ce2",
-  "version": 21
+  "title": "WebSocketBoard-esp32_mavlink",
+  "uid": "c646d137-f6bf-41c0-b184-fca3768d2ce3",
+  "version": 13
 }

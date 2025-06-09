@@ -123,23 +123,19 @@ void send_position()
   send_mavlink(&mvl_tx_message);
 }
 
-void send_mavlink_msg_rc_channels(uint16_t elapsed_us)
+void send_mavlink_msg_rc_channels(uint16_t channel_throttle,uint16_t channel_direction)
 {
-
-  ESP_LOGI("LOGGER_TAG", "UDP transmission took %d microseconds", static_cast<uint16_t>(elapsed_us)); // Warning level
-
   mavlink_rc_channels_t rc_channels = {0};
   mavlink_message_t mvl_tx_message;
 
   // generate spoofed coordinates
   rc_channels.time_boot_ms = millis();
   rc_channels.chancount = 10;
-  rc_channels.chan1_raw = random(1000, 1100);
-  rc_channels.chan2_raw = random(1100, 1200);
+  rc_channels.chan1_raw = channel_throttle;
+  rc_channels.chan2_raw = channel_direction;
   rc_channels.chan3_raw = random(1200, 1300);
   rc_channels.chan4_raw = random(1300, 1400);
   rc_channels.chan5_raw = random(1400, 1500);
-  rc_channels.chan6_raw = elapsed_us;
 
   mavlink_msg_rc_channels_encode(system_id, component_id, &mvl_tx_message, &rc_channels);
   send_mavlink(&mvl_tx_message);
@@ -203,7 +199,7 @@ void send_mavlink_SCALED_IMU(uint32_t time_boot_ms, int16_t xacc, int16_t xgyro,
   scaled_imu.xmag = xmag;     /*< [mT] X Magnetic field*/
   scaled_imu.ymag = xmag * 2; /*< [mT] Y Magnetic field*/
   scaled_imu.zmag = xmag * 3; /*< [mT] Z Magnetic field*/
-  // scaled_imu.temperature = random(20, 25);
+  scaled_imu.temperature = random(20, 25);
 
   mavlink_msg_scaled_imu_encode(system_id, component_id, &mvl_tx_message, &scaled_imu);
   send_mavlink(&mvl_tx_message);

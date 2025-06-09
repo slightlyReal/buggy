@@ -20,10 +20,10 @@ constexpr int16_t RC_CHANNEL_DIRECTION = 3;
 
 
 // // Motor control pins
-const int motor1Pin1 = 17;
-const int motor1Pin2 = 18;
-const int motor2Pin1 = 19;
-const int motor2Pin2 = 23;
+const int motor1Pin1 = 13;
+const int motor1Pin2 = 12;
+const int motor2Pin1 = 14;
+const int motor2Pin2 = 27;
 
 // PWM properties
 const int motor1_pwmChannel1 = 0;

@@ -21,6 +21,7 @@ SCALED_IMU = dict()
 HEARTBEAT= dict()
 LOCAL_POSITION_NED = dict()
 ATTITUDE = dict()
+RC_CHANNELS = dict()
 
 
 
@@ -46,12 +47,18 @@ async def stream_mavlink(websocket):
                     # Assign UTC Timestamp to  IMU  value
                     SCALED_IMU["time_boot_ms"] = get_utc_timestamp_millis()
                     MAVLink["SCALED_IMU"] = SCALED_IMU
+
                 if msg.get_type() == "HEARTBEAT":
                     HEARTBEAT = msg.to_dict()
                     MAVLink["HEARTBEAT"] = HEARTBEAT
+
+                if msg.get_type() == "RC_CHANNELS":
+                    RC_CHANNELS = msg.to_dict()
+                    MAVLink["RC_CHANNELS"] = RC_CHANNELS
+
                 print(MAVLink)
                 await websocket.send(json.dumps(MAVLink))
-            await asyncio.sleep(0.1)  # Limit send rate
+            await asyncio.sleep(0.5)  # Limit send rate
     except websockets.ConnectionClosed:
         print("Client disconnected from WebSocket.")
 

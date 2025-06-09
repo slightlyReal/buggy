@@ -5,6 +5,10 @@ ESP32 Buggy Projesi
 - [Carrera: 2,4GHz Desert Buggy](https://carrera-toys.com/nl/product/370240002-24ghz-desert-buggy)
 - https://github.com/bolderflight/sbus
 - [ROSMASTER R2 ROS2 Robot with Ackermann structure for Jetson NANO 4GB/Orin NANO/Orin NX/RPi 4B](https://www.youtube.com/watch?v=22sJoii4Kg0&ab_channel=YahboomTechnology)
+- [Introduction to RTOS](https://www.youtube.com/watch?v=F321087yYy4&list=PLXyB2ILBXW5FLc7j2hLcX6sAGbmH0JxX8&ab_channel=DigiKey)
+
+-[Ackermann Geometry: Kinematics of Car-Like Mobile Robots](https://www.youtube.com/watch?v=LE7DCSn4hRY&ab_channel=EngineeringEducatorAcademy)
+
 - [How to Build a Satellite](https://www.youtube.com/watch?v=5voQfQOTem8&ab_channel=TheEfficientEngineer)
 - [Modeling a Hohmann Transfer of a Spacecraft](https://www.youtube.com/watch?v=tSnbIhmrkWk&ab_channel=MATLAB)
 - [Mars 2020 Trajectory Animation with NASA Cosmographia, SPICE Kernels, and Python](https://www.youtube.com/watch?v=7i1XjKcOfxo&list=PLOIRBaljOV8gn074rWFWYP1dCr2dJqWab&index=5&ab_channel=AlfonsoGonzalez-Astrodynamics%26SEPodcast)
